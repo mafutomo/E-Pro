@@ -1,0 +1,39 @@
+#chart{
+  width: 800px;
+  height: 400px;
+  background-color: #f7f7f7;
+  margin: 25px auto;
+}
+
+body {
+  font: 10px sans-serif;
+}
+.axisRight text {
+    fill: #52BFAB;
+    font-size: 14px;
+}
+.axisLeft text {
+    fill: #484043;
+    font-size: 14px;
+}
+
+.x-axis{
+  fill: #484043;
+  font-size: 12px;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar1 {
+  /*fill: steelblue;*/
+}
+.bar2 {
+  /*fill: orange;*/
+}
+.x-axis path {
+  display: none;
+}
