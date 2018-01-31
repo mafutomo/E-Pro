@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Tabs, Tab} from 'material-ui/Tabs';
+import Paper from 'material-ui/Paper';
 import './hormone-chart.js';
 import './hormone.css';
 
@@ -12,36 +13,100 @@ const styles = {
     marginBottom: 12,
     fontWeight: 400,
   },
+  paper: {
+    height: 50,
+    maxWidth: 800,
+    margin: 20,
+    textAlign: 'center',
+    display: 'inline-block',
+    marginTop: 30,
+    backgroundColor: '#ffdfaa',
+    fontFamily: 'Julius Sans One',
+    paddingTop: 15,
+    paddingLeft: 20,
+    paddingRight: 20,
+    color: 'black',
+
+  }
 };
 
 class Hormones extends Component {
 
   constructor(props) {
     super(props);
-
+    this.state = {
+      category: '',
+      exercise: '',
+      nutrition: '',
+      username: ''
+    }
   }
 
+  async componentDidMount() {
+    const response = await fetch('https://epro-api.herokuapp.com/auth/status', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      }
+    })
+    const json = await response.json()
+    if (json.status === 'success') {
+
+      const x = await fetch(`https://epro-api.herokuapp.com/users/${json.data.user_id}`)
+      const user = await x.json()
+      const first_name = user.first_name
+
+      const cycleLength = user.cycle_length
+      const firstDay = user.first_day
+
+      const diff = Math.floor(( Date.parse(new Date()) - Date.parse(firstDay)) / 86400000) % cycleLength;
+      let tipNumber
+      const phase = cycleLength / 4
+
+      if (diff >= 0 && diff <= phase) {
+        tipNumber = 1
+      } else if (diff > phase && diff <= phase * 2) {
+        tipNumber = 2
+      } else if (diff > phase * 2 && diff <= phase * 3) {
+        tipNumber = 3
+      } else {
+        tipNumber = 4
+      }
+
+      const getTip = await fetch(`https://epro-api.herokuapp.com/tips/${tipNumber}`)
+      const tipToDisplay = await getTip.json()
+      console.log(tipToDisplay);
+      this.setState({
+        'category': tipToDisplay.category,
+        'exercise': tipToDisplay.exercise_decription,
+        'nutrition': tipToDisplay.nutrition_info,
+        'username': first_name
+      })
+    }
+
+  }
 
   render() {
 
     return (
       <div>
 
-      <div id="chart"></div>
+       <Paper style={styles.paper} zDepth={2}>
+        {`${this.state.username}'s Current Fitness Phase: Performance`}
+       </Paper>
 
+
+      <div id="chart"></div>
 
       <Tabs>
         <Tab label="Exercise" style={{fontFamily: 'Julius Sans One', backgroundColor:'#52BFAB'}}>
           <div>
 
-            <h2 style={{fontFamily: 'Julius Sans One'}}>Performance Phase</h2>
+            <h2 style={{fontFamily: 'Julius Sans One'}}>{this.state.category}</h2>
             <div style={{fontFamily: 'Alegreya Sans'}}>
-              (days 1-7)
-              <ul>
-              <li>During this phase, your hormones are most favorable for performance because they are at their lowest. You are likely to feel your best physically with a rise in pain tolerance and a faster recovery time.</li>
-              <li>Shoot for your goals this week as you will produce more force and greater strength than normal.</li>
-              <li>Coordination may decrease during this time.</li>
-              </ul>
+              <p style={{lineHeight:2.5}}>{this.state.exercise}</p>
             </div>
 
           </div>
@@ -49,13 +114,11 @@ class Hormones extends Component {
 
         <Tab label="Nutrition" style={{fontFamily: 'Julius Sans One', backgroundColor:'#52BFAB'}}>
           <div>
-            <h2 style={{fontFamily: 'Julius Sans One'}}>Performance Phase</h2>
+            <h2 style={{fontFamily: 'Julius Sans One'}}>{this.state.category}</h2>
             <div style={{fontFamily: 'Alegreya Sans'}}>
-            (days 1-7)
-            <ul>
-            <li>Iron is critical to optimal athletic performance because of its role in energy metabolism and oxygen transport. It is important to focus on iron intake at this time of the cycle due to increased blood loss.</li>
-            <li>Peppers and spinach are rich in vitamin C, which can aid iron absorption.</li>
-            </ul>
+            <p style={{lineHeight:2.5}}>
+              {this.state.nutrition}
+            </p>
           </div>
           </div>
         </Tab>

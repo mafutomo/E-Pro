@@ -7,6 +7,7 @@ import Login from './components/login.js'
 import Navbar from './components/navbar.js'
 import Userbase from './components/userbase.js'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
 import {
   BrowserRouter as Router,
   Route,
@@ -20,15 +21,17 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      'loggedIn': false
+      'loggedIn': false,
+      'user': ''
     }
   }
 
   async componentDidMount() {
     const logged = await this.getAuth()
-    if (logged === 'success') {
+    if (logged.status === 'success') {
       this.setState({
-        loggedIn: true
+        loggedIn: true,
+        user: logged.data.user_id
       })
     } else {
       localStorage.removeItem('token')
@@ -44,7 +47,7 @@ class App extends Component {
       }
     })
     const json = await response.json()
-    return json.status
+    return json
   }
 
 
@@ -57,7 +60,7 @@ class App extends Component {
             <Route
               exact path="/"
               render= {() => (
-                <div>
+                <div className = "height-adjust">
                   <Navbar/>
                   <Hormones/>
                 </div>
@@ -99,7 +102,7 @@ class App extends Component {
             render= {() => (
               <div>
                 <Navbar/>
-                <Hormones/>
+                <Hormones user={this.state.user}/>
               </div>
             )}
             />

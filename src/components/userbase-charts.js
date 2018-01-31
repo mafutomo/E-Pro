@@ -1,8 +1,9 @@
 import * as d3 from 'd3';
+import $ from "jquery";
 
 document.addEventListener("DOMContentLoaded", function() {
 
-  function drawUsersByAge() {
+  function drawUsersByAge(data) {
     var initialWidth;
     window.innerWidth > 600 ? initialWidth = 600 : initialWidth = window.innerWidth;
     var initialHeight = initialWidth * 0.7;   // best relative size for chart
@@ -23,25 +24,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Define the div for the tooltip
     var div = d3.select("#userbase").append("div").attr("class", "tooltip").style("opacity", 0);
-
-    var data = [
-      {
-          "age": 18,
-          "frequency": 120
-      },
-      {
-          "age": 19,
-          "frequency": 260
-      },
-      {
-          "age": 20,
-          "frequency": 360
-      },
-      {
-          "age": 21,
-          "frequency": 445
-      }
-    ];
 
       x.domain(data.map(function(d) {
         return d.age;
@@ -76,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   }
 
-  function drawContraceptionMethodsByFrequency() {
+  function drawContraceptionMethodsByFrequency(data) {
     var initialWidth;
     window.innerWidth > 800 ? initialWidth = 800 : initialWidth = window.innerWidth;
     var initialHeight = initialWidth * 0.5;   // best relative size for chart
@@ -88,26 +70,21 @@ document.addEventListener("DOMContentLoaded", function() {
         .variable('Users')
         .category('Type');
 
-    var data = [
-      {"Type":"Non-Hormonal","Users":1002,"Details":"None, Condoms","More":"Paraguard, Copper IUD"},
-      {"Type":"Triphasic","Users":2415,"Details":"The Pill - varied amount","More":"Ortho Tricyclen"},
-      {"Type":"Monophasic","Users":687,"Details":"The Pill - constant amount","More":"Levora"},
-      {"Type":"Progestins","Users":1234,"Details":"Mirena IUD, Skyla, Mini Pill","More":"Depo Shot, The Ring"},
-    ]
-
     d3.select('#svg2')
             .datum(data) // bind data to the div
             .call(donut); // draw chart in div
 
   }
 
-  function drawContraceptionByAge() {
+  function drawContraceptionByAge(data) {
+    console.log("stacked data:");
+    console.log(data);
     var initialWidth;
     window.innerWidth > 600 ? initialWidth = 600 : initialWidth = window.innerWidth;
-    var initialHeight = initialWidth * 0.7;   // best relative size for chart
+    var initialHeight = initialWidth * 0.6;   // best relative size for chart
     var svg = d3.select("#svg3"),
       margin = {
-        top: 20,
+        top: 80,
         right: 20,
         bottom: 50,
         left: 40
@@ -124,7 +101,6 @@ document.addEventListener("DOMContentLoaded", function() {
     var y = d3.scaleLinear().rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal().range([
-      "wheat",
       "#ffa200",
       "#FF3E00",
       "#70608e",
@@ -134,21 +110,7 @@ document.addEventListener("DOMContentLoaded", function() {
       "#52BFAB"
     ]);
 
-    var data = [
-      {
-        "Age":18,"Triphasic":3,"Monophasic":30,"Progestins":6, "Non-Hormonal": 160, "No Answer":32
-      },
-      {
-        "Age":19,"Triphasic":16,"Monophasic":40,"Progestins":76, "Non-Hormonal": 270, "No Answer":65
-      },
-      {
-        "Age":20,"Triphasic":11,"Monophasic":22,"Progestins":6, "Non-Hormonal": 230, "No Answer":55
-      }
-    ]
-
-
-      // var keys = data.columns.slice(1);
-      var keys = ["Age", "Triphasic", "Monophasic", "Progestins", "Non-Hormonal", "No Answer"];
+      var keys = ["Triphasic", "Monophasic", "Progestins", "Non-Hormonal", "No Answer"];
 
       //  loop through the data for each age and save the total in data
       data.map(function(d) {
@@ -158,6 +120,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         d.total = t;
       })
+
+      console.log("after totaling, data is ");
+      console.log(data);
 
 
       x.domain(data.map(function(d) {
@@ -212,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return d;
       });
 
-      g.append("text").attr("x", (width / 2)).attr("y", 0 - (margin.top / 4)).attr("text-anchor", "middle").style("font-size", "18px").style("text-decoration", "underline").text("Contraception By Age");
+      g.append("text").attr("x", (width / 2)).attr("y", 0 - (margin.top / 4)).attr("text-anchor", "middle").style("font-size", "14px").style("text-decoration", "underline").text("Contraceptives By Age");
 
       // text label for the x axis
       g.append("text").attr("x", (width / 2)).attr("y", height+40)
@@ -243,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // generate chart
 
         // Add title
-        selection.append("text").attr("x", (width / 2)).attr("y", 20).attr("text-anchor", "middle").style("font-size", "18px").style("text-decoration", "underline").text("Contraceptive Methods By Users");
+        selection.append("text").attr("x", (width / 2)).attr("y", 20).attr("text-anchor", "middle").style("font-size", "16px").style("text-decoration", "underline").text("Contraceptive Methods By Users");
 
         // ======================================================================================
 
@@ -459,10 +424,109 @@ document.addEventListener("DOMContentLoaded", function() {
     return chart;
   }
 
+  function getData() {
+    let users = [];
+    let triphasic = [];
+    let monophasic = [];
+    let non_hormonal = [];
+    let progestin = [];
+
+    // get the users first
+    $.getJSON("https://epro-api.herokuapp.com/users/all", function(result){
+      users = result.data;
+      $.getJSON("https://epro-api.herokuapp.com/users/triphasic", function(result){
+        triphasic = result.data;
+        $.getJSON("https://epro-api.herokuapp.com/users/monophasic", function(result){
+          monophasic = result.data;
+          $.getJSON("https://epro-api.herokuapp.com/users/progestin", function(result){
+            progestin = result.data;
+            $.getJSON("https://epro-api.herokuapp.com/users/non_hormonal", function(result){
+              non_hormonal = result.data;
+
+              // all results should be set now, so prepare the data and draw the charts
+              let data = prepDataForUsersByAge(users);
+              drawUsersByAge(data);
+              data = prepDataForContraceptionMethodsByFrequency(progestin.length,
+                non_hormonal.length, triphasic.length, monophasic.length);
+              drawContraceptionMethodsByFrequency(data);
+              data = prepDataForContraceptionMethodsByAge(users);
+               // data = [
+               //      {
+               //        "Age":12,"Triphasic":1,"Monophasic":2,"Progestins":0, "Non-Hormonal": 0, "No Answer":0
+               //      },
+               //      {
+               //        "Age":19,"Triphasic":16,"Monophasic":40,"Progestins":76, "Non-Hormonal": 270, "No Answer":65
+               //      },
+               //      {
+               //        "Age":20,"Triphasic":11,"Monophasic":22,"Progestins":6, "Non-Hormonal": 230, "No Answer":55
+               //      }
+               //    ]
+                  console.log(data);
+              drawContraceptionByAge(data);
+            })
+          })
+        })
+      })
+    });
+  }
+
+  function prepDataForUsersByAge(users) {
+    let array = [];
+    let data =  users.reduce((array, user) => {
+      array[user.age] === undefined ?
+        array[user.age] = {"age": user.age, "frequency": 1} :
+        array[user.age].frequency++;
+      return array;
+    }, []);
+    let results = data.filter(element => {
+      return element !== undefined;
+    })
+
+    return results;
+  }
+
+
+  function prepDataForContraceptionMethodsByFrequency(progestin, non_hormonal,
+      triphasic, monophasic) {
+        return [
+          {"Type":"Non-Hormonal","Users":non_hormonal,"Details":"None, Condoms","More":"Paraguard, Copper IUD"},
+          {"Type":"Triphasic","Users":triphasic,"Details":"The Pill - varied amount","More":"Ortho Tricyclen"},
+          {"Type":"Monophasic","Users":monophasic,"Details":"The Pill - constant amount","More":"Levora"},
+          {"Type":"Progestins","Users":progestin,"Details":"Mirena IUD, Skyla, Mini Pill","More":"Depo Shot, The Ring"}
+        ]
+      }
+
+  function prepDataForContraceptionMethodsByAge(users) {
+    let array = [];
+    let data =  users.reduce((array, user) => {
+      if (array[user.age] === undefined) {
+        array[user.age] = {"Age": user.age, "Triphasic":0, "Monophasic":0,
+                            "Progestins":0, "Non-Hormonal":0, "No Answer":0};
+      }
+      if (user.triphasic) {
+        array[user.age].Triphasic++;
+      } else if (user.progestin) {
+        array[user.age].Progestins++;
+      } else if (user.monophasic) {
+        array[user.age].Monophasic++;
+      } else if (user.non_hormonal) {
+        array[user.age]["Non-Hormonal"]++;
+      } else {
+        array[user.age]["No Answer"]++;
+      }
+      return array;
+    }, []);
+    let results = data.filter(element => {
+      return element !== undefined;
+    })
+
+    console.log("Returning from stacked prep: ");
+    console.log(results);
+    return results;
+  }
+
   function drawCharts() {
-    drawUsersByAge();
-    drawContraceptionMethodsByFrequency();
-    drawContraceptionByAge();
+    getData();
   }
 
   window.addEventListener('resize', function(){window.location.reload(true);});

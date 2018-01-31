@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './userbase-charts.js';
 import './userbase.css';
 
-const Userbase = () => {
+class Userbase extends Component {
+    constructor () {
+      super();
+      this.state = { users: [], non_hormonal: [], triphasic: [], monophasic: [], progestin: []  };
+    }
 
-  return (
-    <div id='userbase'>
-      <svg id="svg1"></svg>
-      <svg id="svg2"></svg>
-      <svg id="svg3"></svg>
-    </div>
-  )
+    render() {
+      return (
+        <div id='userbase'>
+          <svg id="svg1"></svg>
+          <svg id="svg2"></svg>
+          <svg id="svg3"></svg>
+        </div>
+      )
+    }
+
 }
 
 

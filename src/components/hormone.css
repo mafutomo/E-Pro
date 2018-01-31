@@ -5,6 +5,11 @@
   margin: 25px auto;
 }
 
+.banner-text{
+  font-family: 'Julius Sans One', sans-serif;
+  color: black;
+}
+
 .axisRight text {
     fill: #52BFAB;
     font-size: 14px;
