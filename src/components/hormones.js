@@ -82,10 +82,9 @@ class Hormones extends Component {
         'category': tipToDisplay.category,
         'exercise': tipToDisplay.exercise_decription,
         'nutrition': tipToDisplay.nutrition_info,
-        'username': first_name
+        'username': first_name + "'s "
       })
     }
-
   }
 
   render() {
@@ -94,7 +93,7 @@ class Hormones extends Component {
       <div>
 
        <Paper style={styles.paper} zDepth={2}>
-        {`${this.state.username}'s Current Fitness Regimen: ${this.state.category}`}
+        {`${this.state.username} ${this.state.category}`}
        </Paper>
 
 

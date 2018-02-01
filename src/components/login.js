@@ -56,6 +56,7 @@ class Login extends Component {
         message: logged.message
       })
     }
+    window.location.reload()
   }
 
   handleChange = (e) => {

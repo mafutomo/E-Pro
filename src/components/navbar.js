@@ -36,7 +36,10 @@ class Navbar extends Component {
 
   handleToggle = () => this.setState({open: !this.state.open});
 
-  handleClose = () => this.setState({open: false});
+  handleClose = () => {
+    this.setState({open: false})
+    window.location.reload()
+  };
 
   render() {
     return (
